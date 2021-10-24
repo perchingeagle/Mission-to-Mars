@@ -22,7 +22,8 @@ def scrape_all():
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
-        "last_modified": dt.datetime.now()
+        "last_modified": dt.datetime.now(),
+        "hemispheres": mars_title_img(browser)
     }
 
     # Stop webdriver and return data
@@ -100,7 +101,31 @@ def mars_facts():
     # Convert dataframe into HTML format, add bootstrap
     return df.to_html(classes="table table-striped")
 
+def mars_title_img(browser):
+    url = 'https://marshemispheres.com/'
+    browser.visit(url)
+
+    # BeautifulSoup object
+    mars_soup = soup(browser.html, 'html.parser')
+
+    # Lists of BeautifulSoup Tags
+    title_div = mars_soup.find_all('div', class_='description')
+    img_div = mars_soup.find_all('div', class_='item')
+
+    result = []
+    content_size = len(title_div)
+
+    for i in range(content_size):
+        title = title_div[i].find('a').text.strip()
+        relative = img_div[i].find('a').find('img').get('src')
+        absolute = f'https://marshemispheres.com/{relative}'
+        result.append({'title': title, 'url': absolute})
+
+    return result
+
 if __name__ == "__main__":
 
     # If running as script, print scraped data
     print(scrape_all())
+    # executable_path = {'executable_path': ChromeDriverManager().install()}
+    # browser = Browser('chrome', **executable_path, headless=True)
