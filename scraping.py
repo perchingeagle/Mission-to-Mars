@@ -2,6 +2,7 @@
 # coding: utf-8
 
 # Import Splinter, BeautifulSoup, and Pandas
+import re
 from splinter import Browser
 from bs4 import BeautifulSoup as soup
 import pandas as pd
@@ -99,29 +100,48 @@ def mars_facts():
     df.set_index('Description', inplace=True)
 
     # Convert dataframe into HTML format, add bootstrap
-    return df.to_html(classes="table table-striped")
+    return df.to_html(classes="table table-dark", justify='center')
 
 def mars_title_img(browser):
     url = 'https://marshemispheres.com/'
     browser.visit(url)
 
-    # BeautifulSoup object
-    mars_soup = soup(browser.html, 'html.parser')
+    ms = soup(browser.html, 'html.parser')
 
-    # Lists of BeautifulSoup Tags
-    title_div = mars_soup.find_all('div', class_='description')
-    img_div = mars_soup.find_all('div', class_='item')
+    title_div = ms.find_all('div', class_='description')
+    img_div = ms.find_all('div', class_='item')
 
     result = []
-    content_size = len(title_div)
 
-    for i in range(content_size):
-        title = title_div[i].find('a').text.strip()
-        relative = img_div[i].find('a').find('img').get('src')
-        absolute = f'https://marshemispheres.com/{relative}'
-        result.append({'title': title, 'url': absolute})
+    for desc, img in zip(title_div, img_div):
+        title = desc.find('a').text.strip()
+        img_url = img.find('a').find('img').get('src')
+        result.append({'title': title, 'url': f'https://marshemispheres.com/{img_url}'})
 
     return result
+
+
+# def mars_title_img(browser):
+#     url = 'https://marshemispheres.com/'
+#     browser.visit(url)
+
+#     # BeautifulSoup object
+#     mars_soup = soup(browser.html, 'html.parser')
+
+#     # Lists of BeautifulSoup Tags
+#     title_div = mars_soup.find_all('div', class_='description')
+#     img_div = mars_soup.find_all('div', class_='item')
+
+#     result = []
+#     content_size = len(title_div)
+
+#     for i in range(content_size):
+#         title = title_div[i].find('a').text.strip()
+#         relative = img_div[i].find('a').find('img').get('src')
+#         absolute = f'https://marshemispheres.com/{relative}'
+#         result.append({'title': title, 'url': absolute})
+
+#     return result
 
 if __name__ == "__main__":
 
